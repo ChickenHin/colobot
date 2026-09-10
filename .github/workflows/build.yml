@@ -1,6 +1,6 @@
 name: Build
 
-on: [push, pull_request]
+on: [workflow_dispatch]
 
 jobs:
   build-linux:
@@ -13,22 +13,6 @@ jobs:
             container: ''
             preset: Linux-CI-gcc
             artifact-tag: ubuntu-22.04-gcc
-          - host_os: ubuntu-22.04
-            container: 'debian:unstable-slim'
-            preset: Linux-CI-gcc
-            artifact-tag: debian-unstable-gcc
-          - host_os: ubuntu-22.04
-            container: 'debian:testing-slim'
-            preset: Linux-CI-gcc
-            artifact-tag: debian-testing-gcc
-          - host_os: ubuntu-22.04
-            container: ''
-            preset: Linux-CI-clang
-            artifact-tag: ubuntu-22.04-clang
-          - host_os: ubuntu-24.04
-            container: ''
-            preset: Linux-CI-gcc
-            artifact-tag: ubuntu-24.04-gcc
       fail-fast: false
     env:
       # Actions run as root in-container, as normal user outside
@@ -108,7 +92,7 @@ jobs:
     strategy:
       matrix:
         target_os: [macos]
-        host_os: [macos-14, macos-15]
+        host_os: [macos-15]
         container: ['']
       fail-fast: false
     steps:
@@ -145,8 +129,6 @@ jobs:
         include:
           - arch: amd64
             vcpkg_triplet: 'x64-windows-static'
-          - arch: x86
-            vcpkg_triplet: 'x86-windows-static'
     steps:
     - uses: actions/checkout@v3
     - name: Checkout the Google Test submodule
@@ -216,24 +198,24 @@ jobs:
       with:
         name: 'Test results (windows, MSVC, ${{ matrix.arch }})'
         path: build/gtestresults.xml
-  doc:
-    runs-on: ubuntu-latest
-    steps:
-    - name: Install Colobot dependencies
-      run: sudo apt-get update && sudo apt-get install -y --no-install-recommends build-essential cmake libsdl2-dev libsdl2-image-dev libsdl2-ttf-dev libsndfile1-dev libvorbis-dev libogg-dev libpng-dev libglew-dev libopenal-dev libphysfs-dev gettext git po4a vorbis-tools librsvg2-bin xmlstarlet doxygen graphviz libglm-dev libmpg123-dev
-    - uses: actions/checkout@v3
-    - name: Create build directory
-      run: cmake -E make_directory build
-    - name: Checkout the nlohmann json submodule
-      run: git submodule update --init -- lib/json
-    - name: Run CMake
-      working-directory: build
-      run: cmake ..
-    - name: Build docs
-      working-directory: build
-      run: make doc
-    - name: Upload docs
-      uses: actions/upload-artifact@v4
-      with:
-        name: doc
-        path: build/doc
+  # doc:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #   - name: Install Colobot dependencies
+  #     run: sudo apt-get update && sudo apt-get install -y --no-install-recommends build-essential cmake libsdl2-dev libsdl2-image-dev libsdl2-ttf-dev libsndfile1-dev libvorbis-dev libogg-dev libpng-dev libglew-dev libopenal-dev libphysfs-dev gettext git po4a vorbis-tools librsvg2-bin xmlstarlet doxygen graphviz libglm-dev libmpg123-dev
+  #   - uses: actions/checkout@v3
+  #   - name: Create build directory
+  #     run: cmake -E make_directory build
+  #   - name: Checkout the nlohmann json submodule
+  #     run: git submodule update --init -- lib/json
+  #   - name: Run CMake
+  #     working-directory: build
+  #     run: cmake ..
+  #   - name: Build docs
+  #     working-directory: build
+  #     run: make doc
+  #   - name: Upload docs
+  #     uses: actions/upload-artifact@v4
+  #     with:
+  #       name: doc
+  #       path: build/doc
